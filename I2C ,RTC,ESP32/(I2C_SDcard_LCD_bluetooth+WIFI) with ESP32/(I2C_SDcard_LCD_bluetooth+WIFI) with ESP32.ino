@@ -16,7 +16,7 @@
 #endif
 String apiKey = "  ";                  //  Enter your Write API key from ThingSpeak
 const char *ssid =  "Your SSID";
-const char *pass =  " Password";
+const char *pass =  "Password";
 const char* server =   "184.106.153.149";
 char k;
 int count = 5 ;
