@@ -14,9 +14,9 @@
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
-String apiKey = "ZZSX53LHRRB35JEV";                  //  Enter your Write API key from ThingSpeak
-const char *ssid =  "RACEnergy (2G)";
-const char *pass =  "rndlab123";
+String apiKey = "  ";                  //  Enter your Write API key from ThingSpeak
+const char *ssid =  "Your SSID";
+const char *pass =  " Password";
 const char* server =   "184.106.153.149";
 char k;
 int count = 5 ;
@@ -649,33 +649,6 @@ void loop() {
   }
   else if(k == 'c') {
     count = 1 ;
-//         Serial.print("entered the thingspeak loop");
-//    if (client.connect("184.106.153.149", 80))                                //   "184.106.153.149" or api.thingspeak.com
-//    {
-//      String postStr = "/update?key=";
-//      postStr += apiKey;
-//      if (temperature != temperature_i) {
-//        postStr += "&field1=";
-//        postStr += String(temperature);
-//      }
-//      if (soc != soc_i) {
-//        postStr += "&field2=";
-//        postStr += String(soc);
-//      }
-//      if (current != current_i) {
-//        postStr += "&field3=";
-//        postStr += String(current);
-//      }
-//
-//      postStr += "\r\n\r\n";
-//      client.print(String("GET ") + postStr + " HTTP/1.1\r\n" +
-//                   "Host: " + server + "\r\n" +
-//                   "Connection: close\r\n\r\n");
-//
-//      Serial.println("%. Send to Thingspeak.");
-//    }
-//    temperature_i = temperature -1, current_i = current - 1, soc_i = soc-1 ;
-//  }
   }
   }
   if(count ==1) {
