@@ -14,12 +14,13 @@
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
-String apiKey = "  ";                  //  Enter your Write API key from ThingSpeak
-const char *ssid =  "Your SSID";
-const char *pass =  "Password";
+String apiKey = "ZZSX53LHRRB35JEV";                  //  Enter your Write API key from ThingSpeak
+const char *ssid =  "RACEnergy (2G)";
+const char *pass =  "rndlab123";
 const char* server =   "184.106.153.149";
 char k;
 int count = 5 ;
+String filei_str;
 WiFiClient client;
 
 File LogFile;
@@ -28,38 +29,75 @@ BluetoothSerial SerialBT;
 
 String data_str ;
 String clock_str ;
+String Date_str ;
+String file_str;
 
 int temperature_i, voltage_i, current_i, AvailableEnergy_i, timef_i, timee_i, cc_i, soc_i ;
+//
+//void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
+//  Serial.printf("Listing directory: %s\n", dirname);
+//
+//  File root = fs.open(dirname);
+//  if (!root) {
+//    Serial.println("Failed to open directory");
+//    return;
+//  }
+//  if (!root.isDirectory()) {
+//    Serial.println("Not a directory");
+//    return;
+//  }
+//
+//  File file = root.openNextFile();
+//  while (file) {
+//    if (file.isDirectory()) {
+//      Serial.print("  DIR : ");
+//      Serial.println(file.name());
+//      if (levels) {
+//        listDir(fs, file.name(), levels - 1);
+//      }
+//    } else {
+//      Serial.print("  FILE: ");
+//      Serial.print(file.name());
+//      Serial.print("  SIZE: ");
+//      Serial.println(file.size());
+//    }
+//    file = root.openNextFile();
+//  }
+//}
+int listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+  //  Serial.printf("Listing directory: %s\n", dirname);
 
-void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
-  Serial.printf("Listing directory: %s\n", dirname);
-
-  File root = fs.open(dirname);
-  if (!root) {
-    Serial.println("Failed to open directory");
-    return;
-  }
-  if (!root.isDirectory()) {
-    Serial.println("Not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file) {
-    if (file.isDirectory()) {
-      Serial.print("  DIR : ");
-      Serial.println(file.name());
-      if (levels) {
-        listDir(fs, file.name(), levels - 1);
-      }
-    } else {
-      Serial.print("  FILE: ");
-      Serial.print(file.name());
-      Serial.print("  SIZE: ");
-      Serial.println(file.size());
+    File root = fs.open(dirname);
+    if(!root){
+      //  Serial.println("Failed to open directory");
+       
     }
-    file = root.openNextFile();
-  }
+    if(!root.isDirectory()){
+       // Serial.println("Not a directory");
+        
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        if(file.isDirectory()){
+         //   Serial.print("  DIR : ");
+           // Serial.println(file.name());
+            if(levels){
+                listDir(fs, file.name(), levels -1);
+            }
+        } else {
+           // Serial.print("  FILE: ");
+          //  Serial.print(file.name());
+             const char* fil = file_str.c_str();
+            if(strcmp(fil,file.name())==0){
+           // Serial.print(file.name());
+            return 200 ;
+            }
+           // Serial.print("  SIZE: ");
+           // Serial.println(file.size());
+        }
+        file = root.openNextFile();
+    }
 }
 
 void createDir(fs::FS &fs, const char * path) {
@@ -265,14 +303,19 @@ void displayTime()
   clock_str += " ";
   Serial.print(dayOfMonth, DEC);
   clock_str += String(dayOfMonth);
+  Date_str += String(dayOfMonth);
   Serial.print("/");
   clock_str += "/";
+  Date_str += "_";
   Serial.print(month, DEC);
   clock_str += String(month);
+  Date_str += String(month);
   Serial.print("/");
   clock_str += "/";
+  Date_str += "_";
   Serial.print(Year, DEC);
   clock_str += String(Year);
+  Date_str += String(Year);
   Serial.print(" Day of week: ");
   clock_str += " Day of week: " ;
   switch (dayOfWeek) {
@@ -387,36 +430,6 @@ void readTimeToFull() {
   data_str  +=   "," + String(timef);
 
 }
-//
-//void ReadPackConfiguration() {
-//  Wire.beginTransmission(address);
-//  Wire.write(0x3A);
-//  Wire.endTransmission();
-//  Wire.requestFrom(address, 1);
-//  unsigned int pc_low_byte = Wire.read();
-//
-//  Wire.beginTransmission(address);
-//  Wire.write(0x3B);
-//  Wire.endTransmission();
-//  Wire.requestFrom(address, 1);
-//  unsigned int  pc_high_byte = Wire.read();
-//  int   nb = pc_high_byte;
-//  int   i = 7;
-//
-//  while (i >= 0) {
-//    if ((nb >> i) & 1)
-//      a[i] = 1;
-//    else
-//      a[i] = 0 ;
-//    --i;
-//  }
-//  int   scaled = a[5] ;
-//
-//}
-
-
-
-
 /*************************** Function to read current**********************************/
 void readcurrent() {
   Wire.beginTransmission(address);
@@ -627,32 +640,41 @@ void loop() {
   lcd.print(StateOfHealth, 0);
   lcd.println("%");
   displayTime();
-  Serial.print(clock_str);
+  Serial.println(clock_str);
+  Serial.println(Date_str);
   SerialBT.println(data_str);
   /************************************************************** Writing Data To SD Card *************************************************************/
   if (!SD.begin()) {
     Serial.println("Card Mount Failed");
-
   }
+  String bt="/";
+  bt +=  Date_str ;
+  bt += "_log";
+  file_str = bt ;
+  const char* filename = file_str.c_str();
+   
   data_str = clock_str  + " " + data_str ;
   const char* datastr = data_str.c_str();
-  appendFile(SD, "/log.txt", datastr);
-  appendFile(SD, "/log.txt", "\n");
-  readFile(SD, "/log.txt");
-  deleteFile(SD, "/log.txt");
-  if(Serial.available()>0){
-    char k = Serial.read();
-    if(k == 's'){
-    k = 's';
-    count = 0 ;
-    client.stop();
+   int a =    listDir(SD, "/", 0);
+  if(a != 200){
+  writeFile(SD,filename," ");
   }
-  else if(k == 'c') {
-    count = 1 ;
+  appendFile(SD,filename, datastr);
+  appendFile(SD,filename, "\n");
+  readFile(SD, filename);
+  if (SerialBT.available() > 0) {
+    char k = SerialBT.read();
+    if (k == 's') {
+      k = 's';
+      count = 0 ;
+      client.stop();
+    }
+    else if (k == 'c') {
+      count = 1 ;
+    }
   }
-  }
-  if(count ==1) {
-         Serial.print("entered the thingspeak loop");
+  if (count == 1) {
+    Serial.print("entered the thingspeak loop");
     if (client.connect("184.106.153.149", 80))                                //   "184.106.153.149" or api.thingspeak.com
     {
       String postStr = "/update?key=";
@@ -669,7 +691,6 @@ void loop() {
         postStr += "&field3=";
         postStr += String(current);
       }
-
       postStr += "\r\n\r\n";
       client.print(String("GET ") + postStr + " HTTP/1.1\r\n" +
                    "Host: " + server + "\r\n" +
@@ -677,10 +698,10 @@ void loop() {
 
       Serial.println("%. Send to Thingspeak.");
     }
-    temperature_i = temperature -1, current_i = current - 1, soc_i = soc-1 ;
+    temperature_i = temperature - 1, current_i = current - 1, soc_i = soc - 1 ;
   }
-  
   data_str = "" ;
   clock_str = "";
+  Date_str = "" ;
   delay(2000);
 }
