@@ -515,7 +515,7 @@ void readAvailableEnergy() {
   AvailableEnergy = ae_high_byte + ae_low_byte;
   AvailableEnergy =  AvailableEnergy * pow(10, -3);
   data_str += "," +  String(AvailableEnergy);
-  AvailableEnergy = AvailableEnergy * 4;
+  AvailableEnergy = AvailableEnergy * 2*13*3.6;
 }
 
 /************************* Function to read Serial Number **********************************/
